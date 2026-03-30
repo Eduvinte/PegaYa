@@ -1,0 +1,9 @@
+alter table users enable row level security;
+alter table profiles enable row level security;
+alter table companies enable row level security;
+alter table jobs enable row level security;
+alter table applications enable row level security;
+alter table reviews enable row level security;
+alter table conversations enable row level security;
+alter table conversation_participants enable row level security;
+alter table messages enable row level security;
