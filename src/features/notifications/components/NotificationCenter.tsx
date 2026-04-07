@@ -152,6 +152,9 @@ const getNotificationHref = (item: NotificationItem) => {
   if (item.entity_type === "job" && item.entity_id) {
     return `/jobs/${item.entity_id}`;
   }
+  if (item.entity_type === "conversation" && item.entity_id) {
+    return `/messages?conversationId=${item.entity_id}`;
+  }
   return null;
 };
 

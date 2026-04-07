@@ -18,7 +18,7 @@ const paddingStyles: Record<CardPadding, string> = {
   lg: "p-7",
 };
 
-export type CardProps = HTMLAttributes<HTMLDivElement> & {
+export type CardProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
   variant?: CardVariant;
   padding?: CardPadding;
   title?: ReactNode;
