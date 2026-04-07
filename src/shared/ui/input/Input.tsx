@@ -60,8 +60,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               "liquid-focus-ring w-full rounded-2xl border px-3 py-2.5 text-sm text-foreground outline-none transition-all duration-300",
               "placeholder:text-muted/80",
-              leftSlot && "pl-10",
-              rightSlot && "pr-10",
+              Boolean(leftSlot) && "pl-10",
+              Boolean(rightSlot) && "pr-10",
               variant === "glass" &&
                 "liquid-glass border-transparent shadow-[inset_0_1px_0_rgba(209,255,255,0.22)]",
               variant === "default" && "bg-surface/70",

@@ -22,6 +22,7 @@ type NavItem = {
 const CANDIDATE_NAV_ITEMS: NavItem[] = [
   { href: "/jobs", label: "Feed de vacantes" },
   { href: "/applications", label: "Mis postulaciones" },
+  { href: "/messages", label: "Mensajes" },
   { href: "/profile", label: "Mi perfil" },
 ];
 
@@ -29,6 +30,7 @@ const COMPANY_NAV_ITEMS: NavItem[] = [
   { href: "/jobs", label: "Feed de vacantes" },
   { href: "/company/jobs/new", label: "Publicar vacante" },
   { href: "/company/jobs", label: "Mis vacantes" },
+  { href: "/messages", label: "Mensajes" },
   { href: "/company/profile", label: "Perfil empresa" },
 ];
 

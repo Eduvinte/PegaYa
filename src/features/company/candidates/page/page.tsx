@@ -7,6 +7,7 @@ import { Card } from "@/shared/ui";
 
 type CandidateDetailPageProps = {
   userId: string;
+  jobId?: string;
 };
 
 type CandidateApplicationRow = {
@@ -15,7 +16,7 @@ type CandidateApplicationRow = {
   jobs: { id: string; title: string; status: string } | { id: string; title: string; status: string }[] | null;
 };
 
-export default async function CandidateDetailPage({ userId }: CandidateDetailPageProps) {
+export default async function CandidateDetailPage({ userId, jobId }: CandidateDetailPageProps) {
   const currentUser = await getCurrentAppUser();
   if (!currentUser) redirect("/login");
   if (currentUser.role !== "company") redirect("/jobs");
@@ -81,19 +82,35 @@ export default async function CandidateDetailPage({ userId }: CandidateDetailPag
   (reviewerProfiles ?? []).forEach((row) => reviewerNameMap.set(row.id, row.full_name ?? "Usuario"));
 
   const typedApplications = (applications ?? []) as unknown as CandidateApplicationRow[];
+  const contextJob = typedApplications
+    .map((application) => extractJob(application.jobs))
+    .find((job) => (jobId ? job?.id === jobId : Boolean(job?.id)));
 
   return (
     <section className="space-y-5">
       <header className="liquid-glass-strong rounded-3xl p-5 sm:p-6">
-        <Link href="/company/jobs" className="text-sm text-brand-soft hover:text-brand">
-          ← Volver a mis vacantes
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link href="/company/jobs" className="text-sm text-brand-soft hover:text-brand">
+            ← Volver a mis vacantes
+          </Link>
+          <Link
+            href={`/messages?candidateId=${userId}${contextJob?.id ? `&jobId=${contextJob.id}` : ""}`}
+            className="rounded-xl border border-brand-soft/40 bg-white/[0.03] px-3 py-1.5 text-sm font-medium text-brand-soft hover:border-brand/60 hover:text-brand"
+          >
+            Iniciar chat con postulante
+          </Link>
+        </div>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
           {profile?.full_name ?? "Perfil postulante"}
         </h1>
         <p className="mt-2 text-sm text-muted">
           Aqui puedes revisar la informacion visible y el historial de postulaciones a tus vacantes.
         </p>
+        {contextJob?.title ? (
+          <p className="mt-1 text-xs text-muted">
+            Contexto de chat: <span className="text-foreground">{contextJob.title}</span>
+          </p>
+        ) : null}
       </header>
 
       <Card variant="glass" title="Informacion personal visible">
@@ -152,7 +169,7 @@ export default async function CandidateDetailPage({ userId }: CandidateDetailPag
           <p className="text-xs uppercase tracking-[0.14em] text-muted">Skills</p>
           {profile?.skills?.length ? (
             <div className="mt-2 flex flex-wrap gap-2">
-              {profile.skills.map((skill) => (
+              {profile.skills.map((skill: string) => (
                 <span
                   key={skill}
                   className="rounded-full border border-white/20 bg-white/[0.05] px-2.5 py-1 text-xs text-foreground"

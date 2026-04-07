@@ -95,7 +95,7 @@ export default async function CompanyJobApplicationsPage({ jobId }: CompanyJobAp
 
   const reviewSummaryMap = new Map<
     string,
-    { avgRating: number; count: number; latestComment: string | null }
+    { avgRating: number; count: number; latestComment: string | null; reviewerName: string }
   >();
   const groupedReviews = new Map<string, ReviewRow[]>();
   (reviews ?? []).forEach((review) => {
@@ -220,7 +220,7 @@ export default async function CompanyJobApplicationsPage({ jobId }: CompanyJobAp
                         jobTitle={jobTitle}
                       />
                     ) : null}
-                    <Link href={`/company/candidates/${application.user_id}`}>
+                    <Link href={`/company/candidates/${application.user_id}?jobId=${jobId}`}>
                       <Button size="sm" variant="glass">
                         Ver perfil postulante
                       </Button>
