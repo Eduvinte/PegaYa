@@ -58,6 +58,8 @@ export default async function CandidateDetailPage({ userId, jobId }: CandidateDe
       .order("created_at", { ascending: false }),
   ]);
 
+  const cvViewUrl = await resolveFileUrl(supabase, profile?.cv_url ?? null);
+
   const { data: reviews } = await supabase
     .from("reviews")
     .select("id, reviewer_id, rating, comment, created_at")
@@ -162,7 +164,7 @@ export default async function CandidateDetailPage({ userId, jobId }: CandidateDe
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
           <LinkBlock label="LinkedIn" href={profile?.linkedin_url ?? null} />
           <LinkBlock label="Portfolio" href={profile?.portfolio_url ?? null} />
-          <LinkBlock label="CV" href={profile?.cv_url ?? null} />
+          <LinkBlock label="CV" href={cvViewUrl} />
         </div>
 
         <div className="mt-4 rounded-2xl border border-white/15 bg-white/[0.04] p-4">
@@ -295,4 +297,27 @@ const getInitials = (fullName: string | null | undefined) => {
     .map((part) => part.charAt(0))
     .join("");
   return initials.toUpperCase() || "US";
+};
+
+const resolveFileUrl = async (
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  storagePathOrUrl: string | null
+) => {
+  if (!storagePathOrUrl) return null;
+  const raw = storagePathOrUrl.trim();
+  if (raw.startsWith("http://") || raw.startsWith("https://")) {
+    return raw;
+  }
+  const normalizedPath = raw.replace(/^\/+/, "").replace(/^file\/+/, "");
+
+  const { data: signedData, error: signedError } = await supabase.storage
+    .from("file")
+    .createSignedUrl(normalizedPath, 3600);
+
+  if (!signedError && signedData?.signedUrl) {
+    return signedData.signedUrl;
+  }
+
+  const { data: publicData } = supabase.storage.from("file").getPublicUrl(normalizedPath);
+  return publicData?.publicUrl ?? null;
 };
