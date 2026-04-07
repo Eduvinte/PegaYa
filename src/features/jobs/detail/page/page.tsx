@@ -30,6 +30,7 @@ export default async function JobDetailPage({ jobId }: JobDetailPageProps) {
 
   const isCandidate = currentUser.role === "candidate";
   const isCompany = currentUser.role === "company";
+  const isOwnerCompany = isCompany && Boolean(currentUser.companyId) && currentUser.companyId === job.companyId;
   const canApply = isCandidate && job.status === "open" && !job.hasApplied;
 
   return (
@@ -80,7 +81,7 @@ export default async function JobDetailPage({ jobId }: JobDetailPageProps) {
         </div>
 
         <div className="mt-5 flex flex-wrap gap-3">
-          {isCompany ? (
+          {isOwnerCompany ? (
             <Link href={`/company/jobs/${job.id}/applications`}>
               <Button type="button" variant="glass">
                 Ver postulaciones visibles ({job.visibleApplicationsCount})

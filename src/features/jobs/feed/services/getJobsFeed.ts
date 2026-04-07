@@ -56,13 +56,28 @@ export const getJobsFeed = async (filters: JobsFeedFilters = {}): Promise<JobFee
   }
 
   const jobIds = jobs.map((job) => job.id);
-  const { data: applications } = await supabase.from("applications").select("job_id").in("job_id", jobIds);
-
   const applicationCountByJob = new Map<string, number>();
-  (applications ?? []).forEach((application) => {
-    const currentCount = applicationCountByJob.get(application.job_id) ?? 0;
-    applicationCountByJob.set(application.job_id, currentCount + 1);
+  const { data: countsRows, error: countsError } = await supabase.rpc("get_job_application_counts", {
+    job_ids: jobIds,
   });
+
+  if (!countsError && countsRows?.length) {
+    (
+      countsRows as {
+        job_id: string;
+        total_applications: number | string | null;
+      }[]
+    ).forEach((row) => {
+      const total = Number(row.total_applications ?? 0);
+      applicationCountByJob.set(row.job_id, Number.isNaN(total) ? 0 : total);
+    });
+  } else {
+    const { data: applications } = await supabase.from("applications").select("job_id").in("job_id", jobIds);
+    (applications ?? []).forEach((application) => {
+      const currentCount = applicationCountByJob.get(application.job_id) ?? 0;
+      applicationCountByJob.set(application.job_id, currentCount + 1);
+    });
+  }
 
   return jobs.map((job) => {
     const companyName =

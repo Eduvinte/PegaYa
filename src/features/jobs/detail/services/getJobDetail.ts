@@ -34,8 +34,8 @@ export const getJobDetail = async (jobId: string, userId?: string): Promise<JobD
     return null;
   }
 
-  const [{ count }, { data: application }] = await Promise.all([
-    supabase.from("applications").select("*", { count: "exact", head: true }).eq("job_id", jobId),
+  const [{ data: countRows, error: countError }, { data: application }] = await Promise.all([
+    supabase.rpc("get_job_application_counts", { job_ids: [jobId] }),
     userId
       ? supabase
           .from("applications")
@@ -45,6 +45,21 @@ export const getJobDetail = async (jobId: string, userId?: string): Promise<JobD
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
+
+  let visibleApplicationsCount = 0;
+  if (!countError && countRows?.length) {
+    const value = Number(
+      (countRows as { job_id: string; total_applications: number | string | null }[])[0]
+        ?.total_applications ?? 0
+    );
+    visibleApplicationsCount = Number.isNaN(value) ? 0 : value;
+  } else {
+    const { count } = await supabase
+      .from("applications")
+      .select("*", { count: "exact", head: true })
+      .eq("job_id", jobId);
+    visibleApplicationsCount = count ?? 0;
+  }
 
   return {
     id: job.id,
@@ -67,7 +82,7 @@ export const getJobDetail = async (jobId: string, userId?: string): Promise<JobD
     createdAt: job.created_at,
     companyId: job.company_id,
     companyName: extractCompanyName(job.companies) ?? "Empresa no disponible",
-    visibleApplicationsCount: count ?? 0,
+    visibleApplicationsCount,
     hasApplied: Boolean(application?.id),
   };
 };
