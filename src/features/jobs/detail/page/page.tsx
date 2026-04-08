@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getCurrentAppUser } from "@/features/app-shell/services/getCurrentAppUser";
 import { ApplyButton } from "@/features/jobs/detail/components/ApplyButton";
 import { getJobDetail } from "@/features/jobs/detail/services/getJobDetail";
+import { isJobExpired } from "@/shared/lib/jobExpiry";
 import { Button, Card } from "@/shared/ui";
 
 type JobDetailPageProps = {
@@ -31,7 +32,10 @@ export default async function JobDetailPage({ jobId }: JobDetailPageProps) {
   const isCandidate = currentUser.role === "candidate";
   const isCompany = currentUser.role === "company";
   const isOwnerCompany = isCompany && Boolean(currentUser.companyId) && currentUser.companyId === job.companyId;
-  const canApply = isCandidate && job.status === "open" && !job.hasApplied;
+  const isExpiredByDate = isJobExpired({
+    workStartDate: job.workStartDate,
+  });
+  const canApply = isCandidate && job.status === "open" && !job.hasApplied && !isExpiredByDate;
 
   return (
     <section className="space-y-5">
@@ -58,6 +62,7 @@ export default async function JobDetailPage({ jobId }: JobDetailPageProps) {
             label="Sueldo"
             value={job.salary ? formatCurrency(job.salary) : "A convenir"}
           />
+          <MetaBlock label="Dia de trabajo" value={formatJobDate(job.workStartDate)} />
           <MetaBlock label="Duracion" value={formatDuration(job.durationValue, job.durationUnit)} />
           <MetaBlock
             label="Extension"
@@ -93,6 +98,8 @@ export default async function JobDetailPage({ jobId }: JobDetailPageProps) {
             <Button type="button" variant="glass" disabled>
               Ya postulaste
             </Button>
+          ) : isCandidate && isExpiredByDate ? (
+            <p className="text-sm text-muted">El plazo de esta vacante ya vencio.</p>
           ) : (
             <Button type="button" variant="glass" disabled>
               {isCandidate ? "Vacante cerrada" : "Solo candidatos pueden postular"}
@@ -133,4 +140,15 @@ const formatDuration = (
     years: "anos",
   };
   return `${durationValue} ${labels[durationUnit]}`;
+};
+
+const formatJobDate = (value: string | null) => {
+  if (!value) return "No definida";
+  const parsed = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat("es-CL", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(parsed);
 };

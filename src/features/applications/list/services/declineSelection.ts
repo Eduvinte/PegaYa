@@ -1,18 +1,18 @@
 import { supabase } from "@/lib/supabase/client";
 
-type SelectCandidateInput = {
+type DeclineSelectionInput = {
   applicationId: string;
-  recipientUserId: string;
+  companyOwnerId: string;
   jobId: string;
   jobTitle: string;
 };
 
-export const selectCandidate = async ({
+export const declineSelection = async ({
   applicationId,
-  recipientUserId,
+  companyOwnerId,
   jobId,
   jobTitle,
-}: SelectCandidateInput) => {
+}: DeclineSelectionInput) => {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -21,26 +21,25 @@ export const selectCandidate = async ({
 
   const { data: updatedApplication, error: updateError } = await supabase
     .from("applications")
-    .update({ status: "selected_by_company" })
+    .update({ status: "rejected" })
     .eq("id", applicationId)
-    .eq("status", "pending")
+    .in("status", ["selected_by_company", "accepted_by_candidate"])
     .select("id")
     .maybeSingle();
 
   if (updateError) throw updateError;
   if (!updatedApplication) {
-    throw new Error("La postulacion ya no esta pendiente o la vacante no esta disponible.");
+    throw new Error("La postulacion ya no esta en estado seleccionable.");
   }
 
   const { error: notificationError } = await supabase.from("notifications").insert({
-    recipient_id: recipientUserId,
+    recipient_id: companyOwnerId,
     actor_id: user.id,
-    type: "application_selected",
-    title: "Fuiste seleccionado por una empresa",
-    body: `La empresa te seleccionó para la vacante: ${jobTitle}.`,
+    type: "system",
+    title: "El postulante desistio de la vacante",
+    body: `El postulante desistio de la vacante: ${jobTitle}.`,
     entity_type: "job",
     entity_id: jobId,
   });
-
   if (notificationError) throw notificationError;
 };

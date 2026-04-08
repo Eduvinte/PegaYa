@@ -4,6 +4,7 @@ import { SelectCandidateButton } from "@/features/company/applications/component
 import { getCurrentAppUser } from "@/features/app-shell/services/getCurrentAppUser";
 import { CreateReviewForm } from "@/features/reviews/components/CreateReviewForm";
 import { createClient } from "@/lib/supabase/server";
+import { isJobExpired } from "@/shared/lib/jobExpiry";
 import { Button, Card } from "@/shared/ui";
 
 type CompanyJobApplicationsPageProps = {
@@ -15,7 +16,26 @@ type ApplicationRow = {
   user_id: string;
   status: string;
   created_at: string | null;
-  jobs: { id: string; title: string } | { id: string; title: string }[] | null;
+  jobs:
+    | {
+        id: string;
+        title: string;
+        status: "open" | "closed" | null;
+        created_at: string | null;
+        work_start_date: string | null;
+        duration_value: number | null;
+        duration_unit: "days" | "weeks" | "months" | "years" | null;
+      }
+    | {
+        id: string;
+        title: string;
+        status: "open" | "closed" | null;
+        created_at: string | null;
+        work_start_date: string | null;
+        duration_value: number | null;
+        duration_unit: "days" | "weeks" | "months" | "years" | null;
+      }[]
+    | null;
 };
 
 type ProfileRow = {
@@ -43,7 +63,9 @@ export default async function CompanyJobApplicationsPage({ jobId }: CompanyJobAp
   const supabase = await createClient();
   const { data: applications } = await supabase
     .from("applications")
-    .select("id, user_id, status, created_at, jobs!inner(id, title, companies!inner(owner_id))")
+    .select(
+      "id, user_id, status, created_at, jobs!inner(id, title, status, created_at, work_start_date, duration_value, duration_unit, companies!inner(owner_id))"
+    )
     .eq("job_id", jobId)
     .eq("jobs.companies.owner_id", currentUser.id)
     .order("created_at", { ascending: false });
@@ -146,6 +168,12 @@ export default async function CompanyJobApplicationsPage({ jobId }: CompanyJobAp
             const profile = profilesMap.get(application.user_id);
             const reviewSummary = reviewSummaryMap.get(application.user_id);
             const myLatestReview = myLatestReviewMap.get(application.user_id);
+            const applicationJob = extractJob(application.jobs);
+            const jobExpired = isJobExpired({
+              workStartDate: applicationJob?.work_start_date,
+            });
+            const canSelectCandidate =
+              application.status === "pending" && applicationJob?.status === "open" && !jobExpired;
             return (
               <Card
                 key={application.id}
@@ -212,13 +240,18 @@ export default async function CompanyJobApplicationsPage({ jobId }: CompanyJobAp
 
                 <div className="mt-4 flex justify-end">
                   <div className="flex gap-2">
-                    {application.status === "pending" ? (
+                    {canSelectCandidate ? (
                       <SelectCandidateButton
                         applicationId={application.id}
                         recipientUserId={application.user_id}
                         jobId={jobId}
                         jobTitle={jobTitle}
                       />
+                    ) : null}
+                    {jobExpired ? (
+                      <span className="inline-flex items-center rounded-xl border border-white/15 bg-white/[0.04] px-3 py-2 text-xs text-muted">
+                        Vacante vencida. Ya no se puede seleccionar.
+                      </span>
                     ) : null}
                     <Link href={`/company/candidates/${application.user_id}?jobId=${jobId}`}>
                       <Button size="sm" variant="glass">
@@ -246,6 +279,12 @@ const extractJobTitle = (jobs: ApplicationRow["jobs"]) => {
   if (!jobs) return null;
   if (Array.isArray(jobs)) return jobs[0]?.title ?? null;
   return jobs.title ?? null;
+};
+
+const extractJob = (jobs: ApplicationRow["jobs"]) => {
+  if (!jobs) return null;
+  if (Array.isArray(jobs)) return jobs[0] ?? null;
+  return jobs;
 };
 
 const formatApplicationStatus = (status: string) => {

@@ -7,6 +7,7 @@ export type JobDetail = {
   location: string | null;
   region: string | null;
   comuna: string | null;
+  workStartDate: string | null;
   durationValue: number | null;
   durationUnit: "days" | "weeks" | "months" | "years" | null;
   extensionPossible: boolean;
@@ -25,7 +26,7 @@ export const getJobDetail = async (jobId: string, userId?: string): Promise<JobD
   const { data: job } = await supabase
     .from("jobs")
     .select(
-      "id, title, description, location, region, comuna, duration_value, duration_unit, extension_possible, salary, status, created_at, company_id, companies(name)"
+      "id, title, description, location, region, comuna, work_start_date, duration_value, duration_unit, extension_possible, salary, status, created_at, company_id, companies(name)"
     )
     .eq("id", jobId)
     .maybeSingle();
@@ -68,6 +69,7 @@ export const getJobDetail = async (jobId: string, userId?: string): Promise<JobD
     location: job.location,
     region: job.region,
     comuna: job.comuna,
+    workStartDate: job.work_start_date,
     durationValue: job.duration_value,
     durationUnit:
       job.duration_unit === "days" ||

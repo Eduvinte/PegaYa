@@ -19,7 +19,7 @@ export default async function CompanyEditJobPage({ jobId }: CompanyEditJobPagePr
   const { data: job } = await supabase
     .from("jobs")
     .select(
-      "id, title, description, location, region, comuna, duration_value, duration_unit, extension_possible, salary, status, companies!inner(owner_id)"
+      "id, title, description, location, region, comuna, work_start_date, duration_value, duration_unit, extension_possible, salary, status, companies!inner(owner_id)"
     )
     .eq("id", jobId)
     .eq("companies.owner_id", currentUser.id)
@@ -49,6 +49,7 @@ export default async function CompanyEditJobPage({ jobId }: CompanyEditJobPagePr
             location: job.location,
             region: job.region,
             comuna: job.comuna,
+            workStartDate: job.work_start_date,
             durationValue: job.duration_value,
             durationUnit:
               job.duration_unit === "days" ||

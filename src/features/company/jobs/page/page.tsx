@@ -24,7 +24,7 @@ export default async function CompanyJobsPage() {
   const { data: jobs } = await supabase
     .from("jobs")
     .select(
-      "id, title, description, location, region, comuna, duration_value, duration_unit, extension_possible, status, created_at, companies!inner(owner_id)"
+      "id, title, description, location, region, comuna, work_start_date, duration_value, duration_unit, extension_possible, status, created_at, companies!inner(owner_id)"
     )
     .eq("companies.owner_id", currentUser.id)
     .order("created_at", { ascending: false });
@@ -65,6 +65,7 @@ export default async function CompanyJobsPage() {
                   label="Duracion"
                   value={formatDuration(job.duration_value, job.duration_unit)}
                 />
+                <MetaBlock label="Dia de trabajo" value={formatJobDate(job.work_start_date)} />
                 <MetaBlock
                   label="Extension"
                   value={job.extension_possible ? "Si" : "No"}
@@ -127,4 +128,15 @@ const formatDuration = (
     years: "anos",
   };
   return `${durationValue} ${labels[durationUnit] ?? durationUnit}`;
+};
+
+const formatJobDate = (value: string | null) => {
+  if (!value) return "No definida";
+  const parsed = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat("es-CL", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(parsed);
 };
