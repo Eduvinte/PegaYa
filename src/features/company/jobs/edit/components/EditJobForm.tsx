@@ -14,6 +14,7 @@ type EditJobFormProps = {
     location: string | null;
     region: string | null;
     comuna: string | null;
+    workStartDate: string | null;
     durationValue: number | null;
     durationUnit: "days" | "weeks" | "months" | "years" | null;
     extensionPossible: boolean;
@@ -43,6 +44,13 @@ export const EditJobForm = ({ job }: EditJobFormProps) => {
         ? durationUnitRaw
         : null;
     const extensionPossible = formData.get("extensionPossible") === "on";
+    const workStartDate = String(formData.get("workStartDate") ?? "").trim();
+
+    if (!workStartDate) {
+      toast.error("Define el dia de trabajo / comparecencia.");
+      setLoading(false);
+      return;
+    }
 
     if ((durationValue && !durationUnit) || (!durationValue && durationUnit)) {
       toast.error("Define duracion completa: numero y unidad.");
@@ -58,6 +66,7 @@ export const EditJobForm = ({ job }: EditJobFormProps) => {
         location: String(formData.get("location") ?? "").trim(),
         region: String(formData.get("region") ?? "").trim(),
         comuna: String(formData.get("comuna") ?? "").trim(),
+        workStartDate,
         durationValue: Number.isNaN(durationValue) ? null : durationValue,
         durationUnit,
         extensionPossible,
@@ -83,6 +92,13 @@ export const EditJobForm = ({ job }: EditJobFormProps) => {
         <Input name="region" label="Region" defaultValue={job.region ?? ""} />
         <Input name="comuna" label="Comuna" defaultValue={job.comuna ?? ""} />
       </div>
+      <Input
+        name="workStartDate"
+        label="Dia de trabajo / comparecencia"
+        type="date"
+        defaultValue={job.workStartDate ?? ""}
+        required
+      />
       <div className="grid gap-3 sm:grid-cols-2">
         <Input
           name="durationValue"

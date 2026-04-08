@@ -7,6 +7,7 @@ export type JobFeedItem = {
   location: string | null;
   region: string | null;
   comuna: string | null;
+  workStartDate: string | null;
   durationValue: number | null;
   durationUnit: "days" | "weeks" | "months" | "years" | null;
   extensionPossible: boolean;
@@ -29,7 +30,7 @@ export const getJobsFeed = async (filters: JobsFeedFilters = {}): Promise<JobFee
   let query = supabase
     .from("jobs")
     .select(
-      "id, title, description, location, region, comuna, duration_value, duration_unit, extension_possible, status, created_at, companies(name)"
+      "id, title, description, location, region, comuna, work_start_date, duration_value, duration_unit, extension_possible, status, created_at, companies(name)"
     )
     .order("created_at", { ascending: false });
 
@@ -90,6 +91,7 @@ export const getJobsFeed = async (filters: JobsFeedFilters = {}): Promise<JobFee
       location: job.location,
       region: job.region,
       comuna: job.comuna,
+      workStartDate: job.work_start_date,
       durationValue: job.duration_value,
       durationUnit:
         job.duration_unit === "days" ||

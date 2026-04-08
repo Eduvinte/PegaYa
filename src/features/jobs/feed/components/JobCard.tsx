@@ -26,6 +26,7 @@ export const JobCard = ({ job }: JobCardProps) => {
             label="Duracion"
             value={formatDuration(job.durationValue, job.durationUnit)}
           />
+          <MetaBlock label="Dia de trabajo" value={formatJobDate(job.workStartDate)} />
           <MetaBlock
             label="Extension"
             value={job.extensionPossible ? "Si, posible extension" : "Sin extension"}
@@ -76,4 +77,15 @@ const formatDuration = (
     years: "anos",
   };
   return `${durationValue} ${labels[durationUnit]}`;
+};
+
+const formatJobDate = (value: string | null) => {
+  if (!value) return "No definida";
+  const parsed = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat("es-CL", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(parsed);
 };

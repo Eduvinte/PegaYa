@@ -74,7 +74,7 @@ values (
 on conflict (id) do nothing;
 
 -- Jobs for feed and detail tests.
-insert into public.jobs (id, company_id, title, description, location, salary, status, created_at)
+insert into public.jobs (id, company_id, title, description, location, salary, status, created_at, work_start_date)
 values
   (
     '44444444-4444-4444-4444-444444444441'::uuid,
@@ -84,7 +84,8 @@ values
     'Santiago',
     650000,
     'open',
-    now() - interval '1 day'
+    now() - interval '1 day',
+    (now() + interval '6 days')::date
   ),
   (
     '44444444-4444-4444-4444-444444444442'::uuid,
@@ -94,7 +95,8 @@ values
     'Valparaiso',
     720000,
     'open',
-    now() - interval '2 days'
+    now() - interval '2 days',
+    (now() + interval '12 days')::date
   ),
   (
     '44444444-4444-4444-4444-444444444443'::uuid,
@@ -104,7 +106,8 @@ values
     'Concepcion',
     900000,
     'closed',
-    now() - interval '7 days'
+    now() - interval '7 days',
+    (now() - interval '1 day')::date
   )
 on conflict (id) do nothing;
 

@@ -28,6 +28,7 @@ export const CreateJobForm = ({ companyId }: CreateJobFormProps) => {
     const location = String(formData.get("location") ?? "").trim();
     const region = String(formData.get("region") ?? "").trim();
     const comuna = String(formData.get("comuna") ?? "").trim();
+    const workStartDate = String(formData.get("workStartDate") ?? "").trim();
     const salaryRaw = String(formData.get("salary") ?? "").trim();
     const salary = salaryRaw ? Number(salaryRaw) : null;
     const durationValueRaw = String(formData.get("durationValue") ?? "").trim();
@@ -42,8 +43,8 @@ export const CreateJobForm = ({ companyId }: CreateJobFormProps) => {
         : null;
     const extensionPossible = formData.get("extensionPossible") === "on";
 
-    if (!title || !description || !location || !region || !comuna) {
-      setError("Completa titulo, descripcion, ubicacion, region y comuna.");
+    if (!title || !description || !location || !region || !comuna || !workStartDate) {
+      setError("Completa titulo, descripcion, ubicacion, region, comuna y dia de trabajo.");
       setIsSubmitting(false);
       return;
     }
@@ -74,6 +75,7 @@ export const CreateJobForm = ({ companyId }: CreateJobFormProps) => {
         location,
         region,
         comuna,
+        workStartDate,
         durationValue,
         durationUnit,
         extensionPossible,
@@ -99,6 +101,13 @@ export const CreateJobForm = ({ companyId }: CreateJobFormProps) => {
         <Input id="job-region" name="region" label="Region" required />
         <Input id="job-comuna" name="comuna" label="Comuna" required />
       </div>
+      <Input
+        id="job-work-start-date"
+        name="workStartDate"
+        label="Dia de trabajo / comparecencia"
+        type="date"
+        required
+      />
       <div className="grid gap-3 sm:grid-cols-2">
         <Input
           id="job-duration-value"

@@ -7,6 +7,7 @@ type UpdateJobInput = {
   location: string;
   region: string;
   comuna: string;
+  workStartDate: string;
   durationValue: number | null;
   durationUnit: "days" | "weeks" | "months" | "years" | null;
   extensionPossible: boolean;
@@ -21,6 +22,7 @@ export const updateJob = async ({
   location,
   region,
   comuna,
+  workStartDate,
   durationValue,
   durationUnit,
   extensionPossible,
@@ -35,6 +37,7 @@ export const updateJob = async ({
       location,
       region,
       comuna,
+      work_start_date: workStartDate,
       duration_value: durationValue,
       duration_unit: durationUnit,
       extension_possible: extensionPossible,
