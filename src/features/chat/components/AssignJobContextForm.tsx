@@ -49,11 +49,11 @@ export const AssignJobContextForm = ({
   return (
     <div className="mt-3 rounded-xl border border-white/15 bg-white/[0.04] p-3">
       <p className="text-xs uppercase tracking-[0.12em] text-muted">Contexto de vacante</p>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
         <select
           value={selectedJobId}
           onChange={(event) => setSelectedJobId(event.target.value)}
-          className="liquid-focus-ring liquid-glass min-w-[260px] rounded-xl px-3 py-2 text-sm text-foreground outline-none"
+          className="liquid-focus-ring liquid-glass w-full rounded-xl px-3 py-2 text-sm text-foreground outline-none sm:min-w-[260px] sm:w-auto"
         >
           <option value="" className="bg-[#08212a]">
             Sin contexto
@@ -68,6 +68,8 @@ export const AssignJobContextForm = ({
           type="button"
           size="sm"
           variant="glass"
+          fullWidth
+          className="sm:w-auto"
           disabled={isSaving || selectedJobId === defaultValue}
           onClick={onSave}
         >

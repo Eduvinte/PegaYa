@@ -156,9 +156,14 @@ export default async function ChatPage({ conversationId, candidateId, jobId }: C
     : [];
 
   return (
-    <section className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
-      <Card variant="glassStrong" title="Conversaciones" description="Chat entre empresa y postulante.">
-        <div className="space-y-2">
+    <section className="grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
+      <Card
+        variant="glassStrong"
+        title="Conversaciones"
+        description="Chat entre empresa y postulante."
+        className="xl:max-h-[calc(100vh-11rem)] xl:overflow-hidden"
+      >
+        <div className="space-y-2 xl:max-h-[calc(100vh-18rem)] xl:overflow-y-auto xl:pr-1">
           {conversationSummaries.map((conversation) => {
             const isActive = conversation.id === activeConversationId;
             return (
@@ -203,14 +208,14 @@ export default async function ChatPage({ conversationId, candidateId, jobId }: C
           />
         ) : null}
 
-        <div className="space-y-2">
+        <div className="space-y-2 sm:max-h-[50vh] sm:overflow-y-auto sm:pr-1">
           {activeMessages.length ? (
             activeMessages.map((message) => {
               const mine = message.sender_id === currentUser.id;
               return (
                 <div
                   key={message.id}
-                  className={`max-w-[85%] rounded-2xl border px-3 py-2 ${
+                  className={`max-w-[95%] sm:max-w-[85%] rounded-2xl border px-3 py-2 ${
                     mine
                       ? "ml-auto border-brand/55 bg-brand/20 text-foreground"
                       : "border-white/15 bg-white/[0.04] text-foreground"

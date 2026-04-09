@@ -126,6 +126,7 @@ export const AppShell = ({ user, children }: AppShellProps) => {
               navigationItems={navigationItems}
               compact={false}
               onToggle={() => setIsMobileOpen(false)}
+              onNavigate={() => setIsMobileOpen(false)}
               mobile
             />
           </aside>
@@ -143,6 +144,7 @@ type SidebarContentProps = {
   navigationItems: NavItem[];
   compact: boolean;
   onToggle: () => void;
+  onNavigate?: () => void;
   mobile?: boolean;
 };
 
@@ -154,6 +156,7 @@ const SidebarContent = ({
   navigationItems,
   compact,
   onToggle,
+  onNavigate,
   mobile = false,
 }: SidebarContentProps) => {
   return (
@@ -215,6 +218,7 @@ const SidebarContent = ({
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "liquid-focus-ring block rounded-xl border px-3 py-2 text-sm transition",
                 active

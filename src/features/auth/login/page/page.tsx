@@ -29,7 +29,16 @@ const LoginPage = () => {
         redirectedFrom && redirectedFrom.startsWith("/")
           ? redirectedFrom
           : "/jobs";
-      router.push(target);
+      router.replace(target);
+      router.refresh();
+
+      // In some environments middleware/session cookie propagation is not immediate.
+      // Force a hard navigation as fallback so the user never gets stuck on /login.
+      setTimeout(() => {
+        if (window.location.pathname === "/login") {
+          window.location.replace(target);
+        }
+      }, 180);
     } catch (error) {
       const err = error as { code?: string };
       if (err.code === "email_not_confirmed") {
