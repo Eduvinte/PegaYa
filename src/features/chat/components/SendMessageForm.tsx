@@ -46,10 +46,10 @@ export const SendMessageForm = ({ conversationId, senderId, placeholder }: SendM
         value={content}
         onChange={(event) => setContent(event.target.value)}
         placeholder={placeholder ?? "Escribe tu mensaje..."}
-        className="liquid-focus-ring min-h-[96px] rounded-2xl border border-white/15 bg-white/[0.05] px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none"
+        className="liquid-focus-ring min-h-[88px] sm:min-h-[96px] rounded-2xl border border-white/15 bg-white/[0.05] px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none"
       />
-      <div>
-        <Button type="submit" size="sm" disabled={isSubmitting || !content.trim()}>
+      <div className="w-full sm:w-auto">
+        <Button type="submit" size="sm" fullWidth disabled={isSubmitting || !content.trim()}>
           {isSubmitting ? "Enviando..." : "Enviar mensaje"}
         </Button>
       </div>
